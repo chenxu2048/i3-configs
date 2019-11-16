@@ -1,0 +1,3 @@
+[submodule "minos-desktop-tools"]
+	path = minos-desktop-tools
+	url = https://github.com/minos-org/minos-desktop-tools.git

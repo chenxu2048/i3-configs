@@ -1,0 +1,14 @@
+#!/bin/bash
+
+function _get_processes() {
+    command ps xo "pid= command=" | \
+        sed -e "s/^ *//"
+}
+
+function main() {
+    processes=$(_get_processes)
+    selected=$(echo -e "$processes" | rofi -p "Kill Process" -dmenu -no-custom | cut -d' ' -f1)
+    kill $selected
+}
+
+main
