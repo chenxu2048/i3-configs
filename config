@@ -9,6 +9,7 @@
 #
 # Please see https://i3wm.org/docs/userguide.html for a complete reference!
 
+set $Alt Mod1
 set $mod Mod4
 
 # Font for window titles. Will also be used by the bar unless a different font
@@ -104,7 +105,7 @@ bindsym $mod+Shift+0 move container to workspace 0
 
 # set monitor aliases
 set $monitor_right DP-1
-set $monitor_left DisplayPort-1-1
+set $monitor_left DP-1-2
 
 workspace 1 output $monitor_right
 workspace 3 output $monitor_right
@@ -125,7 +126,7 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
-bindsym $mod+Mod1+e exit
+bindsym $mod+$ALt+e exit
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -135,16 +136,24 @@ mode "resize" {
         # Pressing right will grow the window’s width.
         # Pressing up will shrink the window’s height.
         # Pressing down will grow the window’s height.
-        bindsym j resize shrink width 10 px or 10 ppt
-        bindsym k resize grow height 10 px or 10 ppt
-        bindsym l resize shrink height 10 px or 10 ppt
-        bindsym semicolon resize grow width 10 px or 10 ppt
+        bindsym h resize shrink width 10 px or 10 ppt
+        bindsym j resize grow height 10 px or 10 ppt
+        bindsym k resize shrink height 10 px or 10 ppt
+        bindsym l resize grow width 10 px or 10 ppt
+        bindsym $mod+h resize shrink width 1 px or 1 ppt
+        bindsym $mod+j resize grow height 1 px or 1 ppt
+        bindsym $mod+k resize shrink height 1 px or 1 ppt
+        bindsym $mod+l resize grow width 1 px or 1 ppt
 
         # same bindings, but for the arrow keys
         bindsym Left resize shrink width 10 px or 10 ppt
         bindsym Down resize grow height 10 px or 10 ppt
         bindsym Up resize shrink height 10 px or 10 ppt
         bindsym Right resize grow width 10 px or 10 ppt
+        bindsym $mod+Left resize shrink width 1 px or 1 ppt
+        bindsym $mod+Down resize grow height 1 px or 1 ppt
+        bindsym $mod+Up resize shrink height 1 px or 1 ppt
+        bindsym $mod+Right resize grow width 1 px or 1 ppt
 
         # back to normal: Enter or Escape
         bindsym Return mode "default"
@@ -159,18 +168,31 @@ bar {
         status_command i3status
 }
 
-bindsym Mod1+Tab exec --no-startup-id "rofi -show window -modi window -kb-row-up 'Up,Control+p,Alt+ISO_Left_Tab,ISO_Left_Tab' -kb-row-down 'Down,Control+n,Alt+Tab' -kb-accept-entry 'Control+j,Control+m,Return,KP_Enter,space'"
+bindsym $ALt+Tab exec --no-startup-id "rofi -show window -modi window -kb-row-up 'Up,Control+p,Alt+ISO_Left_Tab,ISO_Left_Tab' -kb-row-down 'Down,Control+n,Alt+Tab' -kb-accept-entry 'Control+j,Control+m,Return,KP_Enter,space'"
 bindsym $mod+d exec --no-startup-id rofi -show drun
 bindsym $mod+c exec --no-startup-id rofi -show run
 
-bindsym $mod+t exec /home/inplus/.config/i3/tools/tools
+set $tools ~/.config/i3/tools
+set $utils ~/.config/i3/utils
+
+bindsym $mod+t exec $tools/tools
 bindsym $mod+Shift+g exec google-chrome-stable
 bindsym $mod+g [class="Google-chrome"] focus
 
+bindsym --release $mod+x exec $tools/screenshot select_copy
+bindsym --release $mod+Shift+x exec $tools/screenshot copy
+bindsym Print exec $tools/screenshot full
+bindsym --release Shift+Print exec $tools/screenshot select
+
+bindsym XF86AudioRaiseVolume exec "amixer -D pulse -q set Master 5%+ unmute"
+bindsym XF86AudioLowerVolume exec "amixer -D pulse -q set Master 5%- unmute"
+bindsym Ctrl+XF86AudioRaiseVolume exec "amixer -D pulse -q set Master 1%+ unmute"
+bindsym Ctrl+XF86AudioLowerVolume exec "amixer -D pulse -q set Master 1%- unmute"
+bindsym XF86AudioMute exec "amixer -D pulse -q set Master toggle"
 
 #exec
 # setting monitor layout
-exec /home/inplus/.config/i3/utils/monitor-layout
+exec $tools/monitor
 # setting input method
 exec fctix
 exec sogou-qimpanel
@@ -182,3 +204,4 @@ exec compton -b -f -d :0.0
 # floating application area
 for_window [class="Fcitx-config-gtk3"] floating enable
 for_window [class="Lxappearance"] floating enable
+for_window [class="VirtualBox Machine"] border pixel 1

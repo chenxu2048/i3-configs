@@ -1,0 +1,31 @@
+#!/bin/bash
+
+SHOTDIR=~/Pictures/screenshot
+FILE=screenshot-$(date +%F_%T).png
+
+ARGS=("-m")
+COPYCMD='xclip -selection c -t image/png < $f'
+
+[[ -d $SHOTDIR ]] || mkdir $SHOTDIR
+
+case ${1:full} in
+  full)
+  ;;
+  select)
+    ARGS+=('-s')
+  ;;
+  copy)
+    SHOTDIR=/tmp
+    FILE=tmp.png
+    ARGS+=('-e' "$COPYCMD")
+  ;;
+  select_copy)
+    SHOTDIR=/tmp
+    FILE=tmp.png
+    ARGS+=('-se' "$COPYCMD")
+  ;;
+  *)
+  exit 1
+esac
+
+scrot "${ARGS[@]}" $SHOTDIR/$FILE
