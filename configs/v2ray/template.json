@@ -1,0 +1,37 @@
+{
+    "log": {
+        "access": "",
+        "error": "",
+        "loglevel": "warning"
+    },
+    "inbounds": [
+        {
+            "port": 1080,
+            "listen": "127.0.0.1",
+            "protocol": "socks",
+            "sniffing": {
+                "enabled": true,
+                "destOverride": [
+                    "http",
+                    "tls"
+                ]
+            },
+            "settings": {
+                "udp": true
+            }
+        },
+        {
+            "port": 1081,
+            "listen": "127.0.0.1",
+            "protocol": "http"
+        }
+    ],
+    "outbounds": [
+    ],
+    "dns": {
+        "servers": [
+            "1.1.1.1",
+            "114.114.114.114"
+        ]
+    }
+}
