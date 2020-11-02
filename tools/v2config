@@ -1,0 +1,234 @@
+#!/bin/bash
+
+function cwd_guard() {
+    local _SCRIPT_LOCATION="$0"
+    local _ABSOLUTE_LOCATION=$(dirname "${_SCRIPT_LOCATION}")
+    cd "${_ABSOLUTE_LOCATION}"
+}
+cwd_guard
+
+V2CACHE="$HOME/.cache/v2ray/"
+V2CONFIG=../configs/v2ray
+V2PID="$V2CACHE/v2ray.pid"
+mkdir -p "$V2CACHE"
+
+# DIR=$(dirname $0)
+# CONFIG_DIR=$DIR/../configs/v2ray
+# CONFIG=$V2CACHE/config.json
+# PID=$V2CACHE/v2.pid
+# LOG=$V2CACHE/v2.log
+
+# server=$(
+#     jq -r '.configs[] | 
+#         [
+#             .server,
+#             if .remarks != "" then
+#                 " (" + .remarks + ")"
+#             else
+#                 ""
+#             end
+#         ] | add' $CONFIGS |
+#         rofi -p "Shadowsocks" -dmenu -no-custom
+# )
+
+# server=${server% *}
+
+# if [ -z "$server" ]
+# then
+#     exit 1
+# fi
+
+# jq '.configs[] | select(.server == "'$server'")' $CONFIGS > $CONFIG
+
+# $SSLOCAL -d restart -c $CONFIG --pid-file=$PID --log-file=$LOG -vv
+
+function append_base64() {
+    awk '{
+        TAILS[0] = ""
+        TAILS[1] = "="
+        TAILS[2] = "=="
+        REST = (length($0) * 3) % 4
+        printf "%s%s", $0, TAILS[REST] 
+    }'
+}
+
+function decode_vmess() {
+    local config=$(echo "$1" | sed 's#vmess://##' | base64 -d)
+    local config_name=$(echo "${config}" | jq -r '.add')
+    echo ${config} | jq '
+        {
+            "log": {
+                "access": "",
+                "error": "",
+                "loglevel": "warning"
+            },
+            "inbounds": [
+                {
+                    "tag": "proxy",
+                    "port": 1080,
+                    "listen": "0.0.0.0",
+                    "protocol": "socks",
+                    "sniffing": {
+                        "enabled": true,
+                        "destOverride": [
+                            "http",
+                            "tls"
+                        ]
+                    },
+                    "settings": {
+                        "udp": true
+                    }
+                }
+            ],
+            "outbounds": [
+                {
+                    "protocol": "vmess",
+                    "settings": {
+                        "vnext": [
+                            {
+                                "address": .add,
+                                "port": (.port | tonumber),
+                                "users": [
+                                    {
+                                        "id": .id,
+                                        "alterId": .aid,
+                                        "email": "example@example.com",
+                                        "security": "auto"
+                                    }
+                                ]
+                            }
+                        ],
+                        "servers": null
+                    },
+                    "mux": {
+                        "enabled": true
+                    },
+                    "streamSettings": {
+                        "network": .net,
+                        "security": .tls,
+                        "wsSettings": {
+                            "path": .path
+                        }
+                    }
+                }
+            ],
+            "dns": {
+                "servers": [
+                    "1.1.1.1",
+                    "114.114.114.114"
+                ]
+            }
+        }
+    ' > ${V2CONFIG}/${config_name}.json
+}
+
+function decode_ss() {
+    local config=$(echo "$1" | sed 's/^ss:\/\/\(.*\)#.*$/\1/' | append_base64 | base64 -d)
+    local method=$(echo "${config}" | sed 's/^\([a-z0-9\-]*\):.*/\1/g')
+    local password=$(echo "${config}" | sed 's/^[a-z0-9\-]*:\(.*\)@.*/\1/g')
+    local address=$(echo "${config}" | sed 's/^.*@\(.*\):.*/\1/g')
+    local port=$(echo "${config}" | sed 's/^.*:\(.*\)/\1/g')
+    echo "{\"address\": \"${address}\", \"password\": \"${password}\", \"port\": ${port}, \"method\": \"${method}\"}" | jq \
+        '{
+            "log": {
+                "access": "",
+                "error": "",
+                "loglevel": "warning"
+            },
+            "inbounds": [
+                {
+                    "tag": "proxy",
+                    "port": 1080,
+                    "listen": "0.0.0.0",
+                    "protocol": "socks",
+                    "sniffing": {
+                        "enabled": true,
+                        "destOverride": [
+                            "http",
+                            "tls"
+                        ]
+                    },
+                    "settings": {
+                        "udp": true
+                    }
+                }
+            ],
+            "outbounds": [
+                {
+                    "protocol": "shadowsocks",
+                    "settings": {
+                        "servers": [
+                            {
+                                "address": .address,
+                                "method": .method,
+                                "ota": true,
+                                "password": .password,
+                                "port": .port  
+                            }
+                        ]
+                    }
+                }
+            ],
+            "dns": {
+                "servers": [
+                    "1.1.1.1",
+                    "114.114.114.114"
+                ]
+            }
+        }
+    ' > ${V2CONFIG}/${address}.json
+}
+
+function fetch_subscribe() {
+    local server
+    curl -sL "$1" |  append_base64 | base64 -d -i | \
+         while read -r server
+            do
+                decode_vmess "${server}"
+            done
+}
+
+function config_v2ray() {
+    local server=$(ls $V2CONFIG | \
+        sed 's/\.json$//' | \
+        rofi -p "v2ray configuration" -dmenu -no-custom
+    )
+    if [ -f "$V2PID" ]
+    then
+        local pid=$(cat "$V2PID")
+        local tried=5
+        while [ "$(ps $pid | wc -l)" -eq 2 ]
+        do
+            if [ $tried -eq 0]
+            then
+                kill -KILL "$pid"
+                break
+            fi
+            kill "$pid"
+            tried=$(expr $tried - 1)
+        done
+    fi
+    nohup v2ray -c "$V2CONFIG/$server.json" >"$V2CACHE/v2ray.out" 2>"$V2CACHE/v2ray.err" &disown
+    echo $! > "$V2PID"
+}
+
+if [ "$#" -ne 0 ]
+then
+    case "$1" in
+        http*)
+            fetch_subscribe "$1"
+            ;;
+        vmess*)
+            decode_vmess "$1"
+            ;;
+        ssr*)
+            ;;
+        ss*)
+            decode_ss "$1"
+            ;;
+        *)
+            echo "invalid url"
+    esac
+else
+    config_v2ray
+fi

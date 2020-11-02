@@ -28,7 +28,9 @@ floating_modifier $mod
 bindsym $mod+Return exec i3-sensible-terminal
 
 # kill focused window
-bindsym $mod+q kill
+bindsym $mod+Shift+q kill
+
+bindsym $mod+z scratchpad show
 
 # change focus
 bindsym $mod+h focus left
@@ -91,21 +93,21 @@ bindsym $mod+9 workspace 9
 bindsym $mod+0 workspace 0
 
 # move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace 1
-bindsym $mod+Shift+2 move container to workspace 2
-bindsym $mod+Shift+3 move container to workspace 3
-bindsym $mod+Shift+4 move container to workspace 4
-bindsym $mod+Shift+5 move container to workspace 5
-bindsym $mod+Shift+6 move container to workspace 6
-bindsym $mod+Shift+7 move container to workspace 7
-bindsym $mod+Shift+8 move container to workspace 8
-bindsym $mod+Shift+9 move container to workspace 9
-bindsym $mod+Shift+0 move container to workspace 0
+bindsym $mod+Shift+1 move container to workspace 1; workspace 1
+bindsym $mod+Shift+2 move container to workspace 2; workspace 2
+bindsym $mod+Shift+3 move container to workspace 3; workspace 3
+bindsym $mod+Shift+4 move container to workspace 4; workspace 4
+bindsym $mod+Shift+5 move container to workspace 5; workspace 5
+bindsym $mod+Shift+6 move container to workspace 6; workspace 6
+bindsym $mod+Shift+7 move container to workspace 7; workspace 7
+bindsym $mod+Shift+8 move container to workspace 8; workspace 8
+bindsym $mod+Shift+9 move container to workspace 9; workspace 9
+bindsym $mod+Shift+0 move container to workspace 0; workspace 0
 
 
 # set monitor aliases
-set $monitor_right DP-1
-set $monitor_left DP-1-2
+set $monitor_right DP-1-2
+set $monitor_left DP1
 
 workspace 1 output $monitor_right
 workspace 3 output $monitor_right
@@ -119,6 +121,11 @@ workspace 6 output $monitor_left
 workspace 8 output $monitor_left
 workspace 0 output $monitor_left
 
+bindsym $mod+$Alt+Left workspace prev_on_output
+bindsym $mod+$Alt+Right workspace next_on_output
+bindsym $mod+Tab workspace next
+bindsym $mod+Shift+Tab workspace prev
+
 # reload the configuration file
 bindsym $mod+Shift+c reload
 # restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
@@ -126,7 +133,7 @@ bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
 
-bindsym $mod+$ALt+e exit
+bindsym $mod+$Alt+e exit
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
@@ -166,9 +173,10 @@ bindsym $mod+r mode "resize"
 # finds out, if available)
 bar {
         status_command i3status
+        tray_output $monitor_right
 }
 
-bindsym $ALt+Tab exec --no-startup-id "rofi -show window -modi window -kb-row-up 'Up,Control+p,Alt+ISO_Left_Tab,ISO_Left_Tab' -kb-row-down 'Down,Control+n,Alt+Tab' -kb-accept-entry 'Control+j,Control+m,Return,KP_Enter,space'"
+bindsym $Alt+Tab exec --no-startup-id "rofi -show window -modi window -kb-row-up 'Up,Control+p,Alt+ISO_Left_Tab,ISO_Left_Tab' -kb-row-down 'Down,Control+n,Alt+Tab' -kb-accept-entry 'Control+j,Control+m,Return,KP_Enter,space'"
 bindsym $mod+d exec --no-startup-id rofi -show drun
 bindsym $mod+c exec --no-startup-id rofi -show run
 
@@ -184,27 +192,40 @@ bindsym --release $mod+Shift+x exec $tools/screenshot copy
 bindsym Print exec $tools/screenshot full
 bindsym --release Shift+Print exec $tools/screenshot select
 
-bindsym XF86AudioRaiseVolume exec "amixer -D pulse -q set Master 5%+ unmute"
-bindsym XF86AudioLowerVolume exec "amixer -D pulse -q set Master 5%- unmute"
-bindsym Ctrl+XF86AudioRaiseVolume exec "amixer -D pulse -q set Master 1%+ unmute"
-bindsym Ctrl+XF86AudioLowerVolume exec "amixer -D pulse -q set Master 1%- unmute"
-bindsym XF86AudioMute exec "amixer -D pulse -q set Master toggle"
+set $refresh_i3status killall -SIGUSR1 i3status
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% && $refresh_i3status
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% && $refresh_i3status
+bindsym Ctrl+XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
+bindsym Ctrl+XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
+
+# bindsym XF86AudioRaiseVolume exec "amixer -D pulse -q set Master 5%+ unmute"
+# bindsym XF86AudioLowerVolume exec "amixer -D pulse -q set Master 5%- unmute"
+# bindsym Ctrl+XF86AudioRaiseVolume exec "amixer -D pulse -q set Master 1%+ unmute"
+# bindsym Ctrl+XF86AudioLowerVolume exec "amixer -D pulse -q set Master 1%- unmute"
+# bindsym XF86AudioMute exec "amixer -D pulse -q set Master toggle"
 
 #exec
 # setting monitor layout
-exec $tools/monitor
+exec --no-startup-id $tools/monitor
 # setting input method
-exec fctix
-exec sogou-qimpanel
+exec --no-startup-id fcitx5
 
-# setting background & compton
-exec "hsetroot -solid \#0078D7"
-exec compton -b -f -d :0.0
+# setting background & picom
+exec_always --no-startup-id "hsetroot -solid \#0078D7"
+exec_always --no-startup-id "picom"
 
 # floating application area
-for_window [class="Fcitx-config-gtk3"] floating enable
+for_window [class="fcitx5-config-qt"] floating enable
 for_window [class="Lxappearance"] floating enable
 for_window [class="VirtualBox Machine"] border pixel 1
 for_window [class="VirtualBox Machine"] floating enable
 for_window [class="netease-cloud-music"] floating enable
+for_window [class="netease-cloud-music" window_type="normal"] resize set 1022 670
 for_window [class="Matplotlib"] floating enable
+for_window [class="Guake"] floating enable
+for_window [class="Arandr"] floating enable
+for_window [class="Pavucontrol"] floating enable
+for_window [class="Gnome-calculator"] floating enable
+for_window [class="TelegramDesktop"] floating enable

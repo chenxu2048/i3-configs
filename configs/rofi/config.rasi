@@ -1,11 +1,7 @@
 configuration {
   modi: "window,run,ssh,drun";
-  color-active: "#a0222222, #FFFFFF, #a0222222, #0078d4, #FFFFFF";
-  color-normal: "#a0222222, #FFFFFF, #a0222222, #005597, #FFFFFF";
-  color-urgent: "#a0222222, #FFFFFF, #a0222222, #77003d, #FFFFFF";
-  color-window: "#a0222222, #000000, #000000";
   columns: 1;
-  font: "Noto CJK TC 16";
+  font: "Noto CJK TC 18";
   width: 67;
   line-margin: 2;
   hide-scrollbar: true;
@@ -16,3 +12,4 @@ configuration {
   me-select-entry: "MouseSecondary";
   me-accept-entry: "MousePrimary";
 }
+@import "/usr/share/rofi/themes/Pop-Dark.rasi"

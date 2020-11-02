@@ -2,16 +2,32 @@
 xrandr \
     --output DP-1-2 \
         --off \
-    --output DP-1 \
+    --output HDMI1 \
+        --off \
+    --output VGA1 \
+        --off \
+    --output VIRTUAL1 \
+        --off \
+    --output DVI-I-1-1 \
+        --off \
+    --output DP1 \
         --off
 
 xrandr \
-    --output DP-1-2 \
+    --output DP1 \
+        --primary \
         --mode 1920x1080 \
         --pos 0x0 \
         --rotate left \
-    --output DP-1 \
-        --primary \
+    --output HDMI1 \
+        --off \
+    --output VGA1 \
+        --off \
+    --output VIRTUAL1 \
+        --off \
+    --output DP-1-2 \
         --mode 1920x1080 \
         --pos 1080x0 \
-        --rotate normal
+        --rotate normal \
+    --output DVI-I-1-1 \
+        --off
