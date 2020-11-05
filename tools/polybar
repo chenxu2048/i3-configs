@@ -7,11 +7,32 @@ function cwd_guard() {
 }
 cwd_guard
 
-export TOOLS="$PWD"
-if type "xrandr"; then
-  for m in $(polybar -m | cut -d":" -f1); do
-    MONITOR=$m polybar --reload polybar &
+function kill_exist() {
+  for pid in $(pgrep polybar -al | grep 'polybar --reload polybar' | cut -d' ' -f1)
+  do
+    kill $pid
   done
-else
-  polybar --reload polybar &
-fi
+}
+
+declare -A POLYBAR_PIDS
+
+function start_polybars() {
+  export TOOLS="$PWD"
+  for monitor in $(polybar -m | cut -d":" -f1)
+  do
+    MONITOR=$monitor polybar --reload polybar &
+    POLYBAR_PIDS[$monitor]=$!
+  done
+}
+
+function kill_polybars() {
+  for monitor in ${POLYBAR_PIDS[@]}
+  do
+    kill $monitor
+  done
+}
+
+trap "kill_polybars; exit 0" HUP INT PIPE QUIT TERM
+kill_exist
+start_polybars
+wait

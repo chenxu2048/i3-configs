@@ -30,6 +30,8 @@ exec --no-startup-id fcitx5
 exec_always --no-startup-id $tools/wallpaper
 exec_always --no-startup-id "picom --config $config_dir/configs/picom/picom.conf"
 
+exec_always --no-startup-id $tools/polybar
+
 # ==================================== GENERAL ===================================== #
 font pango:FiraCode Nerd Font,Font Awesome 5 Free 9
 hide_edge_borders both
