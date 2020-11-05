@@ -1,0 +1,17 @@
+#!/bin/bash
+
+function cwd_guard() {
+    local _SCRIPT_LOCATION="$0"
+    local _ABSOLUTE_LOCATION=$(dirname "${_SCRIPT_LOCATION}")
+    cd "${_ABSOLUTE_LOCATION}"
+}
+cwd_guard
+
+export TOOLS="$PWD"
+if type "xrandr"; then
+  for m in $(polybar -m | cut -d":" -f1); do
+    MONITOR=$m polybar --reload polybar &
+  done
+else
+  polybar --reload polybar &
+fi

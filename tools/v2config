@@ -26,8 +26,9 @@ function append_base64() {
 function decode_vmess() {
     local config=$(echo "$1" | sed 's#vmess://##' | base64 -d)
     local config_name=$(echo "${config}" | jq -r '.add')
-    echo ${config} | jq '
+    echo "${config}" | jq '
         {
+            "alias": (if .ps then .ps else .add end),
             "protocol": "vmess",
             "settings": {
                 "vnext": [
@@ -61,13 +62,15 @@ function decode_vmess() {
 }
 
 function decode_ss() {
-    local config=$(echo "$1" | sed 's/^ss:\/\/\(.*\)#.*$/\1/' | append_base64 | base64 -d)
+    local config=$(echo "$1" | sed 's/^ss:\/\/\([^#]*\)#\?.*$/\1/' | append_base64 | base64 -d)
+    local alias_name=$(echo "$1" | sed 's/^[^#]*#\?\(.*\)$/\1/')
     local method=$(echo "${config}" | sed 's/^\([a-z0-9\-]*\):.*/\1/g')
     local password=$(echo "${config}" | sed 's/^[a-z0-9\-]*:\(.*\)@.*/\1/g')
     local address=$(echo "${config}" | sed 's/^.*@\(.*\):.*/\1/g')
     local port=$(echo "${config}" | sed 's/^.*:\(.*\)/\1/g')
-    echo "{\"address\": \"${address}\", \"password\": \"${password}\", \"port\": ${port}, \"method\": \"${method}\"}" | jq \
+    echo "{\"address\": \"${address}\", \"password\": \"${password}\", \"port\": ${port}, \"method\": \"${method}\", \"alias\": \"${alias_name}\"}" | jq \
         '{
+            "alias": (if .alias then .alias else .address end),
             "protocol": "shadowsocks",
             "settings": {
                 "servers": [
@@ -98,6 +101,10 @@ function config_v2ray() {
         sed 's/\.json$//' | \
         rofi -p "v2ray configuration" -dmenu -no-custom
     )
+    if [ -z "$server" ]
+    then
+        exit
+    fi
     if [ -f "$V2PID" ]
     then
         local pid=$(cat "$V2PID")

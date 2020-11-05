@@ -3,6 +3,6 @@
 dir=$(dirname $0)
 prog=$(basename $0)
 
-tools=$(ls -1 ${dir} | grep -v ^${prog}\$)
+tools=$(ls -1 -p ${dir} | grep -v ^${prog}\$ | grep -v /\$)
 tool=$(echo -e "${tools}" | rofi -p "tools" -dmenu -no-custom)
 exec ${dir}/${tool}

@@ -1,8 +1,8 @@
 configuration {
   modi: "window,run,ssh,drun";
   columns: 1;
-  font: "Noto CJK TC 18";
-  width: 67;
+  lines: 8;
+  font: "FiraCode Nerd Font,Font Awesome 5 Free 15";
   line-margin: 2;
   hide-scrollbar: true;
   separator-style: "solid";
@@ -12,4 +12,60 @@ configuration {
   me-select-entry: "MouseSecondary";
   me-accept-entry: "MousePrimary";
 }
-@import "/usr/share/rofi/themes/Pop-Dark.rasi"
+
+* {
+  background-color: #282C33;
+  border-color: #2e343f;
+  text-color: #8ca0aa;
+  spacing: 0;
+  width: 768px;
+}
+
+inputbar {
+  border: 0 0 1px 0;
+  children: [prompt,entry];
+}
+
+prompt {
+  padding: 16px;
+  border: 0 1px 0 0;
+}
+
+textbox {
+  background-color: #2e343f;
+  border: 0 0 1px 0;
+  border-color: #282C33;
+  padding: 8px 16px;
+}
+
+entry {
+  padding: 16px;
+}
+
+listview {
+  cycle: false;
+  margin: 0 0 -1px 0;
+  scrollbar: false;
+}
+
+element {
+  border: 0 0 1px 0;
+  padding: 16px;
+}
+
+element selected {
+  background-color: #2e343f;
+}
+
+element-icon {
+  margin: 0 5px 0 0;
+  size: 30px;
+}
+
+element-index {
+  vertical-align: 1;
+}
+
+element-text {
+  vertical-align: 1;
+}

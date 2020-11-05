@@ -1,0 +1,9 @@
+[submodule "configs/rofi/themes"]
+	path = configs/rofi/themes
+	url = https://github.com/davatorium/rofi-themes.git
+[submodule "configs/polybar/polybar-scripts"]
+	path = configs/polybar/polybar-scripts
+	url = https://github.com/polybar/polybar-scripts
+[submodule "tools/canvas"]
+	path = tools/canvas
+	url = https://github.com/adi1090x/canvas.git

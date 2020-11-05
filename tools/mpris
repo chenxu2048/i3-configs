@@ -1,0 +1,20 @@
+#!/bin/bash
+
+function cwd_guard() {
+    local _SCRIPT_LOCATION="$0"
+    local _ABSOLUTE_LOCATION=$(dirname "${_SCRIPT_LOCATION}")
+    cd "${_ABSOLUTE_LOCATION}"
+}
+cwd_guard
+
+mpris="$PWD/../configs/polybar/polybar-scripts/polybar-scripts/player-mpris-tail/player-mpris-tail.py"
+previous="%{A1:${mpris} previous:} 寧 %{A}"
+current="%{A1:${mpris} play-pause:} {icon-reversed} %{A}"
+next="%{A1:${mpris} next:} 嶺 %{A}"
+${mpris} --truncate-text "" \
+    --icon-playing "契" \
+    --icon-pause "" \
+    -f "{:artist:t18:{artist}:}{:artist:  :}{:t24:{title}:} ${previous}${current}${next}" \
+    -b vlc \
+    -b plasma-browser-integration \
+    -b chrome
