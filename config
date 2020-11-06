@@ -37,7 +37,6 @@ exec_always --no-startup-id $tools/polybar
 font pango:FiraCode Nerd Font,Font Awesome 5 Free 9
 hide_edge_borders both
 for_window [class="^.*"] border pixel 0
-for_window [class="Polybar" ] gaps inner 0
 gaps inner 6
 gaps outer 0
 smart_gaps on

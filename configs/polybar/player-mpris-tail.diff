@@ -1,0 +1,13 @@
+diff --git a/polybar-scripts/player-mpris-tail/player-mpris-tail.py b/polybar-scripts/player-mpris-tail/player-mpris-tail.py
+index 857eef9..a9fd677 100755
+--- a/polybar-scripts/player-mpris-tail/player-mpris-tail.py
++++ b/polybar-scripts/player-mpris-tail/player-mpris-tail.py
+@@ -55,6 +55,8 @@ class PlayerManager:
+         else:
+             # If we don't know this player, get its name and add it
+             bus_name = self.getBusNameFromOwner(sender)
++            if bus_name is None or self.busNameIsAPlayer(bus_name) is False:
++                return
+             self.addPlayer(bus_name, sender)
+             player = self.players[sender]
+             player.onPropertiesChanged(interface, properties, signature)

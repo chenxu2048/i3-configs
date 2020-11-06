@@ -18,9 +18,16 @@ declare -A POLYBAR_PIDS
 
 function start_polybars() {
   export TOOLS="$PWD"
-  for monitor in $(polybar -m | cut -d":" -f1)
+  # run on primary monitor
+  for monitor in $(polybar -m | grep primary | cut -d":" -f1)
   do
     MONITOR=$monitor polybar --reload polybar &
+    POLYBAR_PIDS[$monitor]=$!
+  done
+  # run on non-primary monitor
+  for monitor in $(polybar -m | grep -v primary | cut -d":" -f1)
+  do
+    MONITOR=$monitor TRAY_POSITION=" " polybar --reload polybar &
     POLYBAR_PIDS[$monitor]=$!
   done
 }
