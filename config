@@ -27,6 +27,7 @@ set $rofi_run "rofi -show run"
 # ==================================== STARTUP ===================================== #
 exec --no-startup-id $tools/monitor
 exec --no-startup-id fcitx5
+exec --no-startup-id $tools/v2config start
 exec_always --no-startup-id $tools/wallpaper
 exec_always --no-startup-id "picom --config $config_dir/configs/picom/picom.conf"
 

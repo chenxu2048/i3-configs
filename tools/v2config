@@ -122,10 +122,15 @@ function config_v2ray() {
     fi
     local outbounds="$V2OUTBOUNDS/$server.json"
     local config="$V2CACHE/$server.json"
-    local stdout="$V2CACHE/v2ray.out"
-    local stderr="$V2CACHE/v2ray.err"
     local template="$V2CONFIG/template.json"
     jq -s ".[0].outbounds += [.[1]] | .[0]" "${template}"  "${outbounds}" > "${config}"
+    run_v2ray
+}
+
+function run_v2ray() {
+    local config="$V2CACHE/$server.json"
+    local stdout="$V2CACHE/v2ray.out"
+    local stderr="$V2CACHE/v2ray.err"
     nohup v2ray -c "${config}" >"${stdout}" 2>"${stdout}" &disown
     echo $! > "$V2PID"
 }
@@ -145,15 +150,35 @@ function do_subscribe() {
             ;;
         *)
             echo "invalid url"
+            return 1
     esac
 }
 
-if [ "$#" -ne 0 ]
-then
+function update_subscribes() {
     cat $V2CONFIG/subscribe.txt | awk '{ print $0 }' | while read -r url
     do
         do_subscribe "$url"
     done
-else
+}
+
+if [ $# -eq 0 ]
+then
     config_v2ray
+else
+    case "$1" in
+        start)
+            run_v2ray
+            ;;
+        config)
+            config_v2ray
+            ;;
+        update)
+            update_subscribes
+            ;;
+        subscribe)
+            do_subscribe "$2" && echo "$2" >> $V2CONFIG/subscribe.txt
+            ;;
+        *)
+            echo "usage (start|config|update|subscribe)"
+    esac
 fi
