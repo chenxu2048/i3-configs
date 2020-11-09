@@ -28,16 +28,18 @@ set $rofi_run "rofi -show run"
 exec --no-startup-id $tools/monitor
 exec --no-startup-id fcitx5
 exec --no-startup-id $tools/v2config start
-exec_always --no-startup-id $tools/wallpaper
-exec_always --no-startup-id "picom --config $config_dir/configs/picom/picom.conf"
+exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+exec --no-startup-id $tools/proxy-stats run
 
+exec --no-startup-id $tools/wallpaper
+exec_always --no-startup-id "picom --config $config_dir/configs/picom/picom.conf"
 exec_always --no-startup-id $tools/polybar
 
 # ==================================== GENERAL ===================================== #
 font pango:FiraCode Nerd Font,Font Awesome 5 Free 9
 hide_edge_borders both
 for_window [class="^.*"] border pixel 0
-gaps inner 6
+gaps inner 12
 gaps outer 0
 smart_gaps on
 floating_modifier $mod
@@ -68,6 +70,9 @@ workspace 4 output $monitor_left
 workspace 6 output $monitor_left
 workspace 8 output $monitor_left
 workspace 0 output $monitor_left
+
+assign [class="netease-cloud-music"] ""
+assign [class="Thunar"] ""
 
 # ====================================== MODES ===================================== #
 mode "resize" {
@@ -172,6 +177,17 @@ bindsym $mod+Shift+8 move container to workspace 8; workspace 8
 bindsym $mod+Shift+9 move container to workspace 9; workspace 9
 bindsym $mod+Shift+0 move container to workspace 0; workspace 0
 
+bindsym $mod+Ctrl+1 move container to workspace 1
+bindsym $mod+Ctrl+2 move container to workspace 2
+bindsym $mod+Ctrl+3 move container to workspace 3
+bindsym $mod+Ctrl+4 move container to workspace 4
+bindsym $mod+Ctrl+5 move container to workspace 5
+bindsym $mod+Ctrl+6 move container to workspace 6
+bindsym $mod+Ctrl+7 move container to workspace 7
+bindsym $mod+Ctrl+8 move container to workspace 8
+bindsym $mod+Ctrl+9 move container to workspace 9
+bindsym $mod+Ctrl+0 move container to workspace 0
+
 # -------------------- VOLUME --------------------- #
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% && $refresh_i3status
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% && $refresh_i3status
@@ -188,6 +204,7 @@ bindsym $mod+r mode "resize"
 
 # --------------------- ROFI ---------------------- #
 bindsym $alt+Tab exec $rofi_window
+bindsym $mod+w exec $rofi_window
 bindsym $mod+d exec $rofi_drun
 bindsym $mod+c exec $rofi_run
 bindsym $mod+t exec $tools/tools

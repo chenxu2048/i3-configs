@@ -9,6 +9,7 @@ configuration {
   icon-theme: "Numix-Circle";
   show-icons: true;
   location: 0;
+  window-thumbnail: true;
   me-select-entry: "MouseSecondary";
   me-accept-entry: "MousePrimary";
 }

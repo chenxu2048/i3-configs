@@ -16,4 +16,5 @@ git clone $I3_CONFIG $I3_DIR
 # mkconfig i3status
 mkconfig picom
 mkconfig rofi
-mkconfig i3blocks
+# mkconfig i3blocks
+mkconfig polybar

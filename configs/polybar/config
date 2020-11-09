@@ -70,17 +70,17 @@ pin-workspaces = true
 label-mode-padding = 2
 label-mode-foreground = ${colors.foreground}
 label-mode-background = ${colors.primary}
-label-focused = %index%
+label-focused = %name%
 label-focused-background = ${colors.background-alt}
 label-focused-underline= ${colors.primary}
 label-focused-padding = 2
-label-unfocused = %index%
+label-unfocused = %name%
 label-unfocused-padding = 2
-label-visible = %index%
+label-visible = %name%
 label-visible-background = ${self.label-focused-background}
 label-visible-underline = ${self.label-focused-underline}
 label-visible-padding = ${self.label-focused-padding}
-label-urgent = %index%
+label-urgent = %name%
 label-urgent-background = ${colors.alert}
 label-urgent-padding = 2
 
@@ -92,8 +92,9 @@ label-font = 1
 
 [module/proxy-stats]
 type = custom/script
-exec = $TOOLS/proxy-stats
+exec = $TOOLS/proxy-stats stats
 tail = true
+click-left = $TOOLS/proxy-stats toggle %pid%
 label-font = 1
 label-underline = ${colors.proxy}
 
@@ -115,7 +116,7 @@ interval = 2
 format-prefix = " "
 format-prefix-foreground = ${colors.foreground-alt}
 format-underline = ${colors.cpu}
-label = %percentage:2%%
+label = %percentage%%
 
 [module/memory]
 type = internal/memory
@@ -123,7 +124,7 @@ interval = 2
 format-prefix = " "
 format-prefix-foreground = ${colors.foreground-alt}
 format-underline = ${colors.memory}
-label = %percentage_used:2%%
+label = %percentage_used%%
 
 [module/pulseaudio]
 type = internal/pulseaudio
@@ -131,6 +132,7 @@ format-volume = <ramp-volume> <label-volume>
 format-volume-underline = ${colors.volume}
 label-muted = 婢 %percentage%%
 label-muted-foreground = ${colors.muted}
+label-muted-underline = ${colors.volume}
 
 ramp-volume-foreground = ${colors.foreground-alt}
 ramp-volume-0 = 奄

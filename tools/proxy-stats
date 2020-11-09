@@ -8,28 +8,110 @@ function cwd_guard() {
 cwd_guard
 
 V2API="127.0.0.1:10085"
-while true
-do
+V2CACHE="$HOME/.cache/v2ray"
+V2STATSPID="$V2CACHE/v2ray.stats.pid"
+V2STATS="$V2CACHE/v2ray.stats"
+SHOWSTATS=1
+mkdir -p "$V2CACHE"
+
+function v2ray_stats_query() {
+    v2ctl api "--server=$V2API" StatsService.QueryStats 'reset: true' | \
+        grep -v 'api' | \
+        grep -A1 'name: ' | \
+        sed -e '/--/d' -e 'N;s/\n/ /' -e 's/>$/  value: 0/' | \
+        sed -e 's/^  name: ".*>>>\([a-z]\+\)" *value: \([0-9]\+\)$/\1 \2/' | \
+        awk '{
+            if ($1 == "uplink") {
+                uplink += $2
+            } else {
+                downlink += $2
+            }
+        }
+        END {
+            printf(" %d  %d\n", uplink, downlink)
+        }' | \
+        numfmt --field=2,4 --suffix=B --to=iec --padding=1
+}
+function v2ray_stats() {
     if pgrep v2ray >/dev/null 2>&1
     then
-        v2ctl api "--server=$V2API" StatsService.QueryStats 'reset: true' | \
-            grep -v 'api' | \
-            grep -A1 'name: ' | \
-            sed -e '/--/d' -e 'N;s/\n/ /' -e 's/>$/  value: 0/' | \
-            sed -e 's/^  name: ".*>>>\([a-z]\+\)" *value: \([0-9]\+\)$/\1 \2/' | \
-            awk '{
-                if ($1 == "uplink") {
-                    uplink += $2
-                } else {
-                    downlink += $2
-                }
-            }
-            END {
-                printf(" %d  %d\n", uplink, downlink)
-            }' | \
-            numfmt --field=2,4 --suffix=B --to=iec --padding=1
+        v2ray_stats_query
     else
         echo "ﳼ "
     fi
-    sleep 1
-done
+}
+function run_proxy_stats() {
+    if [ -f "$V2STATSPID" ]
+    then
+        local pid=$(cat "$V2STATSPID")
+        local tried=5
+        while [ "$(ps $pid | wc -l)" -eq 2 ]
+        do
+            if [ $tried -eq 0 ]
+            then
+                kill -KILL "$pid"
+                break
+            fi
+            kill "$pid"
+            tried=$(expr $tried - 1)
+        done
+    fi
+    while true
+    do
+        v2ray_stats >"$V2STATS" & 
+        sleep 1
+    done
+}
+
+function show_config_name() {
+    local prog=$(pgrep -al v2ray)
+    if [ $? = 0 -a -n "$prog" ]
+    then
+        echo "$prog" | head -1 | sed 's/^.*\/\([^ ]*\)\.json.*$/\1/'
+    else
+        echo " "
+    fi
+}
+
+function stats() {
+    tail -1 "$V2STATS"
+}
+function stats_loop() {
+    while true
+    do
+        if [ "$SHOWSTATS" -eq 1 ]
+        then
+            stats
+        fi
+        sleep 1
+    done
+}
+
+function do_toggle() {
+    if [ "$SHOWSTATS" -eq 1 ]
+    then
+        SHOWSTATS=0
+        show_config_name
+    else
+        SHOWSTATS=1
+        stats
+    fi
+}
+
+function toggle() {
+    kill -ALRM $1
+}
+
+case "$1" in
+    run)
+        run_proxy_stats
+        ;;
+    toggle)
+        toggle $2
+        ;;
+    stats)
+        trap do_toggle ALRM
+        stats_loop
+        ;;
+    *)
+esac

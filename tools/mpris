@@ -12,7 +12,8 @@ previous="%{A1:${mpris} previous:} 寧 %{A}"
 current="%{A1:${mpris} play-pause:} {icon-reversed} %{A}"
 next="%{A1:${mpris} next:} 嶺 %{A}"
 # name="{:artist:t18:{artist}:}{:artist:  :}{:t24:{title}:}"
-name="{:title:{title}:}"
+# raise netease-music and move to workspace 
+name="%{A1:${mpris} raise; i3-msg 'workspace ':}{:title:{title}:}%{A}"
 ${mpris} --truncate-text "" \
     --icon-playing "契" \
     --icon-pause "" \
