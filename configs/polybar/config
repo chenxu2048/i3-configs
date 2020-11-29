@@ -33,6 +33,8 @@ cpu = #f90000
 memory = #4bffdc
 date = #0a6cf5
 proxy = #ffc0cb
+battery = #c586c0
+backlight = #ce9178
 
 [bar/polybar]
 monitor = ${env:MONITOR:}
@@ -50,45 +52,60 @@ padding-left = 0
 padding-right = 2
 module-margin-left = 0
 module-margin-right = 1
-font-0 = "Fira Code:pixelsize=10;1"
-font-1 = "FiraCode Nerd Font;1"
-font-2 = "Source Han Sans;0"
+font-0 = "Noto Sans Mono:pixelsize=10;1"
+font-1 = "NotoMono Nerd Font;1"
+font-2 = "Noto Sans CJK SC;0"
 modules-left = i3
 modules-center = player-mpris-tail
-modules-right = pulseaudio cpu memory proxy-stats date powermenu
+modules-right = proxy-stats cpu memory backlight pulseaudio battery date powermenu
 tray-position = ${env:TRAY_POSITION:right}
 tray-padding = 2
 cursor-click = pointer
 cursor-scroll = ns-resize
 
 [module/i3]
+label-font=1
 type = internal/i3
 format = <label-state> <label-mode>
 index-sort = true
 wrapping-scroll = false
 pin-workspaces = true
+
 label-mode-padding = 2
 label-mode-foreground = ${colors.foreground}
 label-mode-background = ${colors.primary}
+
+label-focused-padding = 2
 label-focused = %name%
 label-focused-background = ${colors.background-alt}
 label-focused-underline= ${colors.primary}
-label-focused-padding = 2
-label-unfocused = %name%
+
 label-unfocused-padding = 2
+label-unfocused = %name%
+
+label-visible-padding = ${self.label-focused-padding}
 label-visible = %name%
 label-visible-background = ${self.label-focused-background}
 label-visible-underline = ${self.label-focused-underline}
-label-visible-padding = ${self.label-focused-padding}
+
+label-urgent-padding = 2
 label-urgent = %name%
 label-urgent-background = ${colors.alert}
-label-urgent-padding = 2
 
 [module/player-mpris-tail]
 type = custom/script
 exec = $TOOLS/mpris
 tail = true
 label-font = 1
+
+[module/backlight]
+type = internal/backlight
+card = intel_backlight
+enable-scroll = true
+format-prefix = "ﯦ "
+format-prefix-foreground = ${colors.foreground-alt}
+label = %percentage%%
+format-underline = ${colors.backlight}
 
 [module/proxy-stats]
 type = custom/script
@@ -97,6 +114,34 @@ tail = true
 click-left = $TOOLS/proxy-stats toggle %pid%
 label-font = 1
 label-underline = ${colors.proxy}
+
+[module/battery]
+type = internal/battery
+battery = BAT0
+adapter = ADP1
+poll-interval = 5
+format-charging = <animation-charging> <label-charging>
+format-discharging = <ramp-capacity> <label-discharging>
+ramp-capacity-0 = 
+ramp-capacity-1 = 
+ramp-capacity-2 = 
+ramp-capacity-3 = 
+ramp-capacity-4 = 
+ramp-capacity-5 = 
+ramp-capacity-6 = 
+ramp-capacity-7 = 
+ramp-capacity-8 = 
+ramp-capacity-9 = 
+ramp-capacity-foreground = ${colors.foreground-alt}
+animation-charging-0 = 
+animation-charging-1 = 
+animation-charging-2 = 
+animation-charging-3 = 
+animation-charging-4 = 
+animation-charging-framerate = 750
+animation-charging-foreground = ${colors.foreground-alt}
+format-charging-underline = ${colors.battery}
+format-discharging-underline = ${colors.battery}
 
 [module/date]
 type = internal/date

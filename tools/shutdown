@@ -1,24 +1,24 @@
 #!/bin/bash
 
-ACTION=$(echo -ne "poweroff
-sleep
-reboot
-logout
-lock" | rofi -p "Power" -width -20 -font "Microsoft Yahei 25" -dmenu -p "Power" -l 4 )
+declare -A ACTIONS
+ACTIONS=(
+    [poweroff]="systemctl poweroff"
+    [sleep]="systemctl hybrid-sleep"
+    [hibernate]="systemctl hibernate"
+    [reboot]="systemctl reboot"
+    [logout]="i3-msg exit"
+)
 
-case $ACTION in
-    poweroff)
-        systemctl poweroff
-        ;;
-    sleep)
-        systemctl hybrid-sleep
-        ;;
-    reboot)
-        systemctl reboot
-        ;;
-    logout)
-        i3-msg exit
-        ;;
-    *)
-        ;;
-esac
+function get_action() {
+    echo ${!ACTIONS[@]} | tr ' ' '\n' | rofi -p Power -dmenu
+}
+
+function main() {
+    local action=$(get_action)
+    if [ -n "$action" ]
+    then
+        ${ACTIONS[$action]}
+    fi
+}
+
+main

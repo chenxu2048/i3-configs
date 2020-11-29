@@ -17,6 +17,7 @@ name="%{A1:${mpris} raise; i3-msg 'workspace ':}{:title:{title}:}%{A}"
 ${mpris} --truncate-text "" \
     --icon-playing "契" \
     --icon-pause "" \
+    --icon-stop "" \
     -f "${name} ${previous}${current}${next}" \
     -b vlc \
     -b plasma-browser-integration \

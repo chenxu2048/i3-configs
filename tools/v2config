@@ -19,7 +19,7 @@ function append_base64() {
         TAILS[1] = "="
         TAILS[2] = "=="
         REST = (length($0) * 3) % 4
-        printf "%s%s", $0, TAILS[REST] 
+        printf "%s%s", $0, TAILS[REST]
     }'
 }
 
@@ -62,12 +62,32 @@ function decode_vmess() {
 }
 
 function decode_ss() {
-    local config=$(echo "$1" | sed 's/^ss:\/\/\([^#]*\)#\?.*$/\1/' | append_base64 | base64 -d)
-    local alias_name=$(echo "$1" | sed 's/^[^#]*#\?\(.*\)$/\1/')
-    local method=$(echo "${config}" | sed 's/^\([a-z0-9\-]*\):.*/\1/g')
-    local password=$(echo "${config}" | sed 's/^[a-z0-9\-]*:\(.*\)@.*/\1/g')
-    local address=$(echo "${config}" | sed 's/^.*@\(.*\):.*/\1/g')
-    local port=$(echo "${config}" | sed 's/^.*:\(.*\)/\1/g')
+    local config=$(
+        echo "$1" | \
+        sed 's/^ss:\/\/\([^#]*\)#\?.*$/\1/' | \
+        append_base64 | \
+        base64 -d
+    )
+    local alias_name=$(
+        echo "$1" | \
+        sed 's/^[^#]*#\?\(.*\)$/\1/'
+    )
+    local method=$(
+        echo "${config}" | \
+        sed 's/^\([a-z0-9\-]*\):.*/\1/g'
+    )
+    local password=$(
+        echo "${config}" | \
+        sed 's/^[a-z0-9\-]*:\(.*\)@.*/\1/g'
+    )
+    local address=$(
+        echo "${config}" | \
+        sed 's/^.*@\(.*\):.*/\1/g'
+    )
+    local port=$(
+        echo "${config}" | \
+        sed 's/^.*:\(.*\)/\1/g'
+    )
     echo "{\"address\": \"${address}\", \"password\": \"${password}\", \"port\": ${port}, \"method\": \"${method}\", \"alias\": \"${alias_name}\"}" | jq \
         '{
             "alias": (if .alias then .alias else .address end),
@@ -79,7 +99,7 @@ function decode_ss() {
                         "method": .method,
                         "ota": true,
                         "password": .password,
-                        "port": .port  
+                        "port": .port
                     }
                 ]
             }
@@ -96,11 +116,18 @@ function fetch_subscribe() {
             done
 }
 
-function config_v2ray() {
-    local server=$(ls $V2OUTBOUNDS | \
+function read_last() {
+    cat "$V2CACHE/last_server.txt"
+}
+
+function select_server() {
+    ls $V2OUTBOUNDS | \
         sed 's/\.json$//' | \
         rofi -p "v2ray configuration" -dmenu -no-custom
-    )
+}
+
+function start_v2ray() {
+    local server="$1"
     if [ -z "$server" ]
     then
         exit
@@ -124,15 +151,13 @@ function config_v2ray() {
     local config="$V2CACHE/$server.json"
     local template="$V2CONFIG/template.json"
     jq -s ".[0].outbounds += [.[1]] | .[0]" "${template}"  "${outbounds}" > "${config}"
-    run_v2ray
-}
-
-function run_v2ray() {
+    local server="$1"
     local config="$V2CACHE/$server.json"
     local stdout="$V2CACHE/v2ray.out"
     local stderr="$V2CACHE/v2ray.err"
     nohup v2ray -c "${config}" >"${stdout}" 2>"${stdout}" &disown
     echo $! > "$V2PID"
+    echo "${server}" > "$V2CACHE/last_server.txt"
 }
 
 function do_subscribe() {
@@ -144,6 +169,7 @@ function do_subscribe() {
             decode_vmess "$1"
             ;;
         ssr*)
+            echo "invalid url"
             ;;
         ss*)
             decode_ss "$1"
@@ -151,6 +177,7 @@ function do_subscribe() {
         *)
             echo "invalid url"
             return 1
+            ;;
     esac
 }
 
@@ -163,14 +190,14 @@ function update_subscribes() {
 
 if [ $# -eq 0 ]
 then
-    config_v2ray
+    start_v2ray "$(select_server)"
 else
     case "$1" in
         start)
-            run_v2ray
+            start_v2ray "$(read_last)"
             ;;
         config)
-            config_v2ray
+            start_v2ray "$(select_server)"
             ;;
         update)
             update_subscribes
