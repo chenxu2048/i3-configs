@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function cwd_guard() {
+    local _SCRIPT_LOCATION="$0"
+    local _ABSOLUTE_LOCATION=$(dirname "${_SCRIPT_LOCATION}")
+    cd "${_ABSOLUTE_LOCATION}"
+}
+cwd_guard
+
+DEVICE=wlan0
+
+function iwctl_escape() {
+    iwctl "$@" | sed 's/'$(echo -e '\033')'\[[0-9;]*m//g'
+}
+
+function get_networks() {
+    iwctl_escape station $DEVICE get-networks | \
+        sed -e '1,/^--/d' -e '1,/^--/d' -e '/^$/d' | \
+        cut -c 5-36
+}
+
+function select() {
+    get_networks | rofi -p 'Networks' -dmenu
+}

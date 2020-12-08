@@ -5,6 +5,10 @@ set $mod Mod4
 set $monitor_right DP-1-2
 set $monitor_left DP1
 
+set $workspace_music ""
+set $workspace_file ""
+set $workspace_shell ""
+
 set $config_dir ~/.config/i3
 
 set $refresh_i3status killall -SIGUSR1 i3status
@@ -31,7 +35,8 @@ exec --no-startup-id $tools/v2config start
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id $tools/proxy-stats run
 exec --no-startup-id libinput-gestures-setup start
-exec --no-startup-id $tools/wallpaper
+# exec --no-startup-id $tools/wallpaper
+exec --no-startup ~/.fehbg
 
 exec_always --no-startup-id "picom --config $config_dir/configs/picom/picom.conf"
 exec_always --no-startup-id $tools/polybar
@@ -72,9 +77,9 @@ workspace 6 output $monitor_left
 workspace 8 output $monitor_left
 workspace 0 output $monitor_left
 
-assign [class="netease-cloud-music"] ""
-assign [class="Thunar"] ""
-assign [class="Alacritty"] ""
+assign [class="netease-cloud-music"] $workspace_music
+assign [class="Thunar"] $workspace_file
+assign [class="Alacritty"] $workspace_shell
 
 # ====================================== MODES ===================================== #
 mode "resize" {
@@ -108,7 +113,7 @@ mode "resize" {
 # }
 
 # ==================================== KEYMAPS ===================================== #
-bindsym $mod+Return workspace ""; exec "pgrep alacritty || alacritty"
+bindsym $mod+Return workspace $workspace_file; exec "pgrep alacritty || alacritty"
 bindsym $mod+Shift+q kill
 bindsym $mod+z scratchpad show
 
@@ -190,6 +195,9 @@ bindsym $mod+Ctrl+8 move container to workspace 8
 bindsym $mod+Ctrl+9 move container to workspace 9
 bindsym $mod+Ctrl+0 move container to workspace 0
 
+bindsym $mod+m workspace $workspace_music
+bindsym $mod+n workspace $workspace_file
+
 # -------------------- VOLUME --------------------- #
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% && $refresh_i3status
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% && $refresh_i3status
@@ -199,8 +207,8 @@ bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ to
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
 # ------------------ BRIGHTNESS ------------------- #
-bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight -inc 10
-bindsym XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 10
+bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight -inc 2
+bindsym XF86MonBrightnessDown exec --no-startup-id xbacklight -dec 2
 
 # ---------------------- I3 ----------------------- #
 bindsym $mod+Shift+c reload

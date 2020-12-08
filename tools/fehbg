@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 
 function cwd_guard() {
     local _SCRIPT_LOCATION="$0"
     local _ABSOLUTE_LOCATION=$(dirname "${_SCRIPT_LOCATION}")
     cd "${_ABSOLUTE_LOCATION}"
 }
+
 cwd_guard
 
-./canvas/canvas -S 1920x1080 -b -a -R
+feh --no-fehbg --randomize --bg-fill ../configs/wallpapers

@@ -1,3 +1,10 @@
+shell:
+  program: tmux
+  args:
+    - new-session
+    - -AD
+    - -s
+    - term
 font:
   size: 9
   normal:
