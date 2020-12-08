@@ -19,6 +19,8 @@ font:
     family: NotoMono Nerd Font Mono
     style: Italic
 
+background_opacity: 0.85
+
 colors:
   # See as https://github.com/alacritty/alacritty/wiki/Color-schemes#visual-studio-code-terminal
   # VSCode's integrated terminal default colors
