@@ -2,11 +2,20 @@
 set $alt Mod1
 set $mod Mod4
 
-set $monitor_right DP-1-2
-set $monitor_left DP1
+set_from_resource \
+    $monitor_primary \
+    i3wm.monitor.primary \
+    MONITOR-STUB
+set_from_resource \
+    $monitor_secondary \
+    i3wm.monitor.secondary \
+    MONITOR-STUB
+
+set_from_resource $test i3wm.monitor.test jiba
+bindsym $mod+b exec "echo $test $monitor_primary $monitor_secondary | rofi -p v2ray -dmenu -no-custom"
 
 set $workspace_music ""
-set $workspace_file ""
+set $workspace_file_manager ""
 set $workspace_shell ""
 
 set $config_dir ~/.config/i3
@@ -29,16 +38,16 @@ set $rofi_drun "rofi -show drun"
 set $rofi_run "rofi -show run"
 
 # ==================================== STARTUP ===================================== #
-exec --no-startup-id $tools/monitor
+# exec --no-startup-id $tools/monitor
 exec --no-startup-id fcitx5
 exec --no-startup-id $tools/v2config start
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id $tools/proxy-stats run
 exec --no-startup-id libinput-gestures-setup start
 # exec --no-startup-id $tools/wallpaper
-exec --no-startup ~/.fehbg
 
 exec_always --no-startup-id "picom --config $config_dir/configs/picom/picom.conf"
+exec_always --no-startup-id $tools/fehbg
 exec_always --no-startup-id $tools/polybar
 
 # ==================================== GENERAL ===================================== #
@@ -65,20 +74,20 @@ for_window [class="Gnome-calculator"] floating enable
 for_window [class="TelegramDesktop"] floating enable
 
 # ==================================== WORKSPACE =================================== #
-workspace 1 output $monitor_right
-workspace 3 output $monitor_right
-workspace 5 output $monitor_right
-workspace 7 output $monitor_right
-workspace 9 output $monitor_right
+workspace 1 output $monitor_primary
+workspace 3 output $monitor_primary
+workspace 5 output $monitor_primary
+workspace 7 output $monitor_primary
+workspace 9 output $monitor_primary
 
-workspace 2 output $monitor_left
-workspace 4 output $monitor_left
-workspace 6 output $monitor_left
-workspace 8 output $monitor_left
-workspace 0 output $monitor_left
+workspace 2 output $monitor_secondary
+workspace 4 output $monitor_secondary
+workspace 6 output $monitor_secondary
+workspace 8 output $monitor_secondary
+workspace 0 output $monitor_secondary
 
 assign [class="netease-cloud-music"] $workspace_music
-assign [class="Thunar"] $workspace_file
+assign [class="Thunar"] $workspace_file_manager
 assign [class="Alacritty"] $workspace_shell
 
 # ====================================== MODES ===================================== #
@@ -109,11 +118,11 @@ mode "resize" {
 # bar {
 #     status_command i3status
 #     position top
-#     tray_output $monitor_right
+#     tray_output $monitor_primary
 # }
 
 # ==================================== KEYMAPS ===================================== #
-bindsym $mod+Return workspace $workspace_file; exec "pgrep alacritty || alacritty"
+bindsym $mod+Return workspace $workspace_shell; exec "pgrep alacritty || alacritty"
 bindsym $mod+Shift+q kill
 bindsym $mod+z scratchpad show
 
@@ -196,7 +205,7 @@ bindsym $mod+Ctrl+9 move container to workspace 9
 bindsym $mod+Ctrl+0 move container to workspace 0
 
 bindsym $mod+m workspace $workspace_music
-bindsym $mod+n workspace $workspace_file
+bindsym $mod+n workspace $workspace_file_manager
 
 # -------------------- VOLUME --------------------- #
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% && $refresh_i3status
@@ -223,6 +232,7 @@ bindsym $mod+d exec $rofi_drun
 bindsym $mod+c exec $rofi_run
 bindsym $mod+t exec $tools/tools
 bindsym $mod+p exec $tools/v2config
+bindsym $mod+Shift+p exec $tools/monitor
 
 # ------------------ SCREENSHOT -------------------- #
 bindsym --release $mod+x exec $tools/screenshot select_copy

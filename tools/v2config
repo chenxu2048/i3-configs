@@ -121,7 +121,7 @@ function read_last() {
 }
 
 function select_server() {
-    ls $V2OUTBOUNDS | \
+    ls -ut $V2OUTBOUNDS | \
         sed 's/\.json$//' | \
         rofi -p "v2ray configuration" -dmenu -no-custom
 }
@@ -151,6 +151,7 @@ function start_v2ray() {
     local config="$V2CACHE/$server.json"
     local template="$V2CONFIG/template.json"
     jq -s ".[0].outbounds += [.[1]] | .[0]" "${template}"  "${outbounds}" > "${config}"
+    touch -a "${outbounds}"
     local server="$1"
     local config="$V2CACHE/$server.json"
     local stdout="$V2CACHE/v2ray.out"

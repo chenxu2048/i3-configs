@@ -1,33 +1,38 @@
 #!/bin/sh
-xrandr \
-    --output DP-1-2 \
-        --off \
-    --output HDMI1 \
-        --off \
-    --output VGA1 \
-        --off \
-    --output VIRTUAL1 \
-        --off \
-    --output DVI-I-1-1 \
-        --off \
-    --output DP1 \
-        --off
+MONITOR_LAYOUTS=~/.screenlayout
 
-xrandr \
-    --output DP1 \
-        --mode 1920x1080 \
-        --pos 0x0 \
-        --rotate left \
-    --output HDMI1 \
-        --off \
-    --output VGA1 \
-        --off \
-    --output VIRTUAL1 \
-        --off \
-    --output DP-1-2 \
-        --primary \
-        --mode 1920x1080 \
-        --pos 1080x0 \
-        --rotate normal \
-    --output DVI-I-1-1 \
-        --off
+function select_layout() {
+    ls -ut "$MONITOR_LAYOUTS" | \
+        sed -n 's/\.sh$//gp' | \
+        rofi -p "monitor layout" -dmenu
+}
+
+function update_i3() {
+    local x_resource_tmp=$(mktemp)
+    local active_monitor=$(xrandr --listactivemonitors)
+    local primary=$(echo "$active_monitor" | sed -n 's/^.*: +\*.*  \(.*\)/\1/p')
+    local secondary=$(echo "$active_monitor" | sed -n 's/^.*: +[^*].*  \(.*\)/\1/p')
+    : ${secondary:=$primary}
+
+    echo "i3wm.monitor.primary: $primary" >> $x_resource_tmp
+    echo "i3wm.monitor.secondary: $secondary" >> $x_resource_tmp
+
+    xrdb -merge $x_resource_tmp
+    i3-msg restart
+    i3-msg '[workspace="(2|4|6|8|0)"]' move workspace to output "$secondary"
+    i3-msg '[workspace="(1|3|5|7|9)"]' move workspace to output "$primary"
+}
+
+function main() {
+    local layout_name=$(select_layout)
+    if [ -z "$layout_name" ]
+    then
+        return
+    fi
+    local layout="$MONITOR_LAYOUTS/$layout_name.sh"
+    touch -a "$layout"
+    $SHELL "$layout"
+    update_i3
+}
+
+main
