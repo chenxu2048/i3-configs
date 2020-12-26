@@ -8,15 +8,15 @@ shell:
 font:
   size: 9
   normal:
-    family: NotoMono Nerd Font Mono
+    family: Noto Sans Mono
     style: Regular
 
   bold:
-    family: NotoMono Nerd Font Mono
+    family: Noto Sans Mono
     style: Bold
 
   italic:
-    family: NotoMono Nerd Font Mono
+    family: Noto Sans Mono
     style: Italic
 
 background_opacity: 0.85
