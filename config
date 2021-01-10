@@ -58,10 +58,12 @@ exec_always --no-startup-id $tools/polybar
 font pango:Noto Sans CJK SC Normal 15
 hide_edge_borders both
 for_window [class="^.*"] border pixel 0
+for_window [window_role="pop-up"] floating enable
 gaps inner 12
 gaps outer 0
 smart_gaps on
 floating_modifier $mod
+
 
 # ==================================== SPECIFIC ==================================== #
 for_window [class="fcitx5-config-qt"] floating enable
