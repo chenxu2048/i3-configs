@@ -29,12 +29,13 @@ nocolor = #00000000
 line = #ff0000
 volume = #e5e510
 muted = #ff1111
-cpu = #f90000
+cpu = #a90080
 memory = #4bffdc
 date = #0a6cf5
 proxy = #ffc0cb
 battery = #c586c0
 backlight = #ce9178
+network = #008866
 
 [bar/polybar]
 monitor = ${env:MONITOR:}
@@ -58,7 +59,7 @@ font-1 = "Symbols Nerd Font Vim;1"
 font-2 = "Noto Sans CJK SC;0"
 modules-left = i3
 modules-center = player-mpris-tail
-modules-right = proxy-stats cpu memory backlight pulseaudio battery date powermenu
+modules-right = wireless proxy-stats cpu memory backlight pulseaudio battery date powermenu
 tray-position = ${env:TRAY_POSITION:right}
 tray-padding = 2
 cursor-click = pointer
@@ -69,7 +70,7 @@ label-font=1
 type = internal/i3
 format = <label-state> <label-mode>
 index-sort = true
-wrapping-scroll = false
+wrapping-scroll = true
 pin-workspaces = true
 
 label-mode-padding = 2
@@ -92,6 +93,16 @@ label-visible-underline = ${self.label-focused-underline}
 label-urgent-padding = 2
 label-urgent = %name%
 label-urgent-background = ${colors.alert}
+
+[module/wireless]
+type = internal/network
+interface = wlan0
+format-connected = <label-connected>
+format-disconnected = <label-disconnected>
+label-connected = 直 %essid%
+label-disconnected = 睊
+format-connected-underline = ${colors.network}
+format-disconnected-underline = ${colors.line}
 
 [module/player-mpris-tail]
 type = custom/script
@@ -123,6 +134,7 @@ adapter = ADP1
 poll-interval = 5
 format-charging = <animation-charging> <label-charging>
 format-discharging = <ramp-capacity> <label-discharging>
+format-full =  FULL
 ramp-capacity-0 = 
 ramp-capacity-1 = 
 ramp-capacity-2 = 
@@ -148,6 +160,7 @@ animation-charging-framerate = 750
 animation-charging-foreground = ${colors.foreground-alt}
 format-charging-underline = ${colors.battery}
 format-discharging-underline = ${colors.battery}
+format-full-underline = ${colors.battery}
 
 [module/date]
 type = internal/date
