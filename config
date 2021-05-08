@@ -15,16 +15,12 @@ set_from_resource \
     i3wm.monitor.secondary \
     MONITOR-STUB
 
-set_from_resource $test i3wm.monitor.test jiba
-bindsym $mod+b exec "echo $test $monitor_primary $monitor_secondary | rofi -p v2ray -dmenu -no-custom"
-
 set $workspace_music ""
 set $workspace_file_manager ""
 set $workspace_shell ""
 
 set $config_dir ~/.config/i3
 
-set $refresh_i3status killall -SIGUSR1 i3status
 set $i3_exit_prompt "i3-nagbar \
     -t warning \
     -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' \
@@ -94,7 +90,7 @@ workspace 0 output $monitor_secondary
 
 assign [class="netease-cloud-music"] $workspace_music
 assign [class="Thunar"] $workspace_file_manager
-assign [class="Alacritty"] $workspace_shell
+assign [class="Alacritty" instance="DefaultTerminal"] $workspace_shell
 
 # ====================================== MODES ===================================== #
 mode "resize" {
@@ -129,15 +125,8 @@ mode "resize" {
     bindsym Escape mode "default"
 }
 
-# ======================================= BAR ====================================== #
-# bar {
-#     status_command i3status
-#     position top
-#     tray_output $monitor_primary
-# }
-
 # ==================================== KEYMAPS ===================================== #
-bindsym $mod+Return workspace $workspace_shell; exec "pgrep alacritty || alacritty"
+bindsym $mod+Return workspace $workspace_shell; exec "pgrep -f '^alacritty --class DefaultTerminal' || alacritty --class DefaultTerminal --command tmux new-session -AD -s term"
 bindsym $mod+Shift+q kill
 bindsym $mod+z scratchpad show
 
@@ -228,12 +217,12 @@ bindsym $mod+m workspace $workspace_music
 bindsym $mod+n workspace $workspace_file_manager
 
 # -------------------- VOLUME --------------------- #
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +1% && $refresh_i3status
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -1% && $refresh_i3status
-bindsym Ctrl+XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $refresh_i3status
-bindsym Ctrl+XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $refresh_i3status
-bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $refresh_i3status
-bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
+bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +1%
+bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -1%
+bindsym Ctrl+XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10%
+bindsym Ctrl+XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10%
+bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle
+bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle
 
 # ------------------ BRIGHTNESS ------------------- #
 bindsym XF86MonBrightnessUp exec --no-startup-id xbacklight -inc 1

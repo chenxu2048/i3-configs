@@ -1,12 +1,5 @@
-shell:
-  program: tmux
-  args:
-    - new-session
-    - -AD
-    - -s
-    - term
 font:
-  size: 9
+  size: 15
   normal:
     family: Noto Sans Mono
     style: Regular
